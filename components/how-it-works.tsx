@@ -3,33 +3,11 @@
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-<<<<<<< HEAD
-import { Play, BookOpen, Brain, Trophy, Target, Crown } from "lucide-react"
-=======
 import { Play, BookOpen, Brain, Trophy } from "lucide-react"
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
 import Link from "next/link"
 
 const steps = [
   {
-<<<<<<< HEAD
-    name: "Choose Your Level",
-    description:
-      "Select your skill level and preferred learning style. Our AI will create a personalized training plan just for you.",
-    icon: Target,
-  },
-  {
-    name: "Train with AI",
-    description:
-      "Play against our advanced AI engine, which adapts to your level and helps you improve with every game.",
-    icon: Brain,
-  },
-  {
-    name: "Master the Game",
-    description:
-      "Track your progress, learn from your mistakes, and gradually improve your rating with consistent practice.",
-    icon: Crown,
-=======
     icon: Play,
     title: "Play & Practice",
     description: "Start by playing against our AI or solving puzzles to assess your current skill level.",
@@ -52,41 +30,11 @@ const steps = [
     title: "Track Progress",
     description: "Monitor your improvement with detailed statistics and achieve your rating goals.",
     link: "/dashboard",
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
   },
 ]
 
 export default function HowItWorks() {
   return (
-<<<<<<< HEAD
-    <div className="py-24 sm:py-32">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-base font-semibold leading-7 text-[#00BFCF]">Get Started</h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-[#FFFFFF] sm:text-4xl">
-            How Endgame Works
-          </p>
-          <p className="mt-6 text-lg leading-8 text-[#CFFAFE]">
-            Start your journey to chess mastery in four simple steps
-          </p>
-        </div>
-
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-4">
-            {steps.map((step) => (
-              <div key={step.name} className="flex flex-col items-start">
-                <div className="rounded-full bg-[#3F51B5] bg-opacity-20 p-2 ring-1 ring-inset ring-[#3F51B5]">
-                  <step.icon className="h-6 w-6 text-[#00BFCF]" aria-hidden="true" />
-                </div>
-                <dt className="mt-4 font-semibold text-[#FFFFFF]">{step.name}</dt>
-                <dd className="mt-2 leading-7 text-[#CFFAFE]">{step.description}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </div>
-    </div>
-=======
     <section className="py-24 bg-white dark:bg-gray-800">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -138,6 +86,5 @@ export default function HowItWorks() {
         </div>
       </div>
     </section>
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
   )
 }

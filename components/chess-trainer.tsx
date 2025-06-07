@@ -7,11 +7,9 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-<<<<<<< HEAD
 import { AlertCircle, Brain, ChevronRight, RotateCcw, Zap, ChevronLeft } from "lucide-react"
-=======
-import { AlertCircle, Brain, ChevronRight, RotateCcw, Zap } from "lucide-react"
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
+
+type BoardOrientation = "white" | "black"
 
 export default function ChessTrainer() {
   const [game, setGame] = useState(new Chess())
@@ -19,19 +17,13 @@ export default function ChessTrainer() {
   const [moveHistory, setMoveHistory] = useState<string[]>([])
   const [analysis, setAnalysis] = useState<string>("")
   const [loading, setLoading] = useState(false)
-  const [orientation, setOrientation] = useState("white")
-<<<<<<< HEAD
+  const [orientation, setOrientation] = useState<BoardOrientation>("white")
   const [currentMoveIndex, setCurrentMoveIndex] = useState(-1)
-=======
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
 
   useEffect(() => {
     setFen(game.fen())
     setMoveHistory(game.history())
-<<<<<<< HEAD
     setCurrentMoveIndex(game.history().length - 1)
-=======
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
   }, [game])
 
   const makeMove = useCallback(
@@ -52,7 +44,6 @@ export default function ChessTrainer() {
     [fen],
   )
 
-<<<<<<< HEAD
   const goToMove = (index: number) => {
     const newGame = new Chess()
     const moves = game.history()
@@ -78,8 +69,6 @@ export default function ChessTrainer() {
     }
   }
 
-=======
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
   const onDrop = (sourceSquare: string, targetSquare: string) => {
     const move = makeMove({
       from: sourceSquare,
@@ -146,10 +135,7 @@ export default function ChessTrainer() {
   const resetGame = () => {
     setGame(new Chess())
     setAnalysis("")
-<<<<<<< HEAD
     setCurrentMoveIndex(-1)
-=======
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
   }
 
   const flipBoard = () => {
@@ -188,7 +174,6 @@ export default function ChessTrainer() {
             <Button onClick={flipBoard} variant="outline" size="sm">
               Flip Board
             </Button>
-<<<<<<< HEAD
             <Button onClick={goToPreviousMove} disabled={currentMoveIndex === -1} variant="outline" size="sm">
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -198,15 +183,6 @@ export default function ChessTrainer() {
             <Button onClick={analyzePosition} disabled={loading} size="sm">
               <Brain className="mr-2 h-4 w-4" /> Analyze Position
             </Button>
-            <Button onClick={() => makeAIMove()} disabled={loading || game.isGameOver() || currentMoveIndex !== moveHistory.length - 1} size="sm">
-=======
-            <Button onClick={analyzePosition} disabled={loading} size="sm">
-              <Brain className="mr-2 h-4 w-4" /> Analyze Position
-            </Button>
-            <Button onClick={() => makeAIMove()} disabled={loading || game.isGameOver()} size="sm">
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
-              <Zap className="mr-2 h-4 w-4" /> Suggest Move
-            </Button>
           </CardFooter>
         </Card>
       </div>
@@ -214,30 +190,31 @@ export default function ChessTrainer() {
       <div>
         <Tabs defaultValue="moves">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="moves">Moves</TabsTrigger>
-            <TabsTrigger value="analysis">Analysis</TabsTrigger>
+            <TabsTrigger value="moves">
+              <Zap className="mr-2 h-4 w-4" /> Moves
+            </TabsTrigger>
+            <TabsTrigger value="analysis">
+              <Brain className="mr-2 h-4 w-4" /> Analysis
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="moves">
             <Card>
               <CardHeader>
                 <CardTitle>Move History</CardTitle>
+                <CardDescription>Click on a move to view the position</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-[400px] overflow-y-auto">
-                  {moveHistory.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-1">
-                      {moveHistory.map((move, index) => (
-                        <div
-                          key={index}
-                          className={`p-2 ${index % 2 === 0 ? "bg-gray-100 dark:bg-gray-800" : ""} rounded`}
-                        >
-                          {index % 2 === 0 ? `${Math.floor(index / 2) + 1}.` : ""} {move}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-center text-muted-foreground">No moves yet</p>
-                  )}
+                <div className="grid grid-cols-2 gap-2">
+                  {moveHistory.map((move, index) => (
+                    <Button
+                      key={index}
+                      variant={index === currentMoveIndex ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => goToMove(index)}
+                    >
+                      {index % 2 === 0 ? `${Math.floor(index / 2) + 1}.` : ""} {move}
+                    </Button>
+                  ))}
                 </div>
               </CardContent>
             </Card>
@@ -246,48 +223,25 @@ export default function ChessTrainer() {
             <Card>
               <CardHeader>
                 <CardTitle>Position Analysis</CardTitle>
+                <CardDescription>AI evaluation of the current position</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-[400px] overflow-y-auto">
-                  {loading ? (
-                    <div className="flex items-center justify-center h-full">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    </div>
-                  ) : analysis ? (
-                    <div className="space-y-2">
-                      <p>{analysis}</p>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                      <AlertCircle className="h-8 w-8 mb-2" />
-                      <p>Click "Analyze Position" to get insights</p>
-                    </div>
-                  )}
-                </div>
+                {loading ? (
+                  <div className="flex items-center justify-center p-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                  </div>
+                ) : analysis ? (
+                  <p className="text-sm">{analysis}</p>
+                ) : (
+                  <div className="flex items-center gap-2 text-yellow-600">
+                    <AlertCircle className="h-4 w-4" />
+                    <p className="text-sm">Click "Analyze Position" to get AI insights</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Training</CardTitle>
-            <CardDescription>Improve your chess skills</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <Button variant="outline" className="w-full justify-between">
-                Opening Trainer <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" className="w-full justify-between">
-                Endgame Practice <ChevronRight className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" className="w-full justify-between">
-                Tactics Puzzles <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )

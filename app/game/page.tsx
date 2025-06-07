@@ -2,18 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { Chessboard } from "react-chessboard"
-<<<<<<< HEAD
 import { Chess, Square, Move } from "chess.js"
-=======
-import { Chess } from "chess.js"
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-<<<<<<< HEAD
 import { AlertCircle, Brain, RotateCcw, Zap, Crown, Target, ChevronLeft, ChevronRight } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 
@@ -184,28 +179,10 @@ export default function GamePage() {
   const [accuracy, setAccuracy] = useState(85)
   const [currentEvaluation, setCurrentEvaluation] = useState(0.0)
   const [currentMoveIndex, setCurrentMoveIndex] = useState(-1)
-=======
-import { AlertCircle, Brain, RotateCcw, Zap, Crown, Target } from "lucide-react"
-import { useSearchParams } from "next/navigation"
-
-export default function GamePage() {
-  const searchParams = useSearchParams()
-  const [game, setGame] = useState(new Chess())
-  const [fen, setFen] = useState("")
-  const [moveHistory, setMoveHistory] = useState<string[]>([])
-  const [analysis, setAnalysis] = useState<string>("")
-  const [loading, setLoading] = useState(false)
-  const [orientation, setOrientation] = useState("white")
-  const [gameMode, setGameMode] = useState("play")
-  const [playerRating, setPlayerRating] = useState(1500)
-  const [accuracy, setAccuracy] = useState(85)
-  const [currentEvaluation, setCurrentEvaluation] = useState(0.0)
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
 
   const opponent = searchParams?.get("opponent") || "intermediate-bot"
   const style = searchParams?.get("style") || null
   const quick = searchParams?.get("quick") || null
-<<<<<<< HEAD
   const difficulty = opponent.includes("beginner") ? "beginner" : 
                     opponent.includes("intermediate") ? "intermediate" : "advanced"
 
@@ -222,70 +199,13 @@ export default function GamePage() {
     }
   }, [playerColor, opponent])
 
-  // Update the useEffect that syncs game state
-  useEffect(() => {
-    if (game) {
-      setFen(game.fen())
-      setMoveHistory(game.history())
-      setCurrentMoveIndex(game.history().length - 1)
-    }
-  }, [game])
-
-  const makeMove = useCallback(
-    (move: { from: string; to: string; promotion?: string }) => {
-      try {
-        const result = game.move(move)
-        if (result) {
-          const newGame = new Chess(game.fen())
-          setGame(newGame)
-          setCurrentEvaluation(Math.random() * 2 - 1)
-          setSelectedSquare(null)
-          setHighlightSquares({})
-          return true
-        }
-      } catch (e) {
-        console.error("Move error:", e)
-=======
-
-  useEffect(() => {
-    setFen(game.fen())
-    setMoveHistory(game.history())
-  }, [game])
-
-  const makeMove = useCallback(
-    (move: any) => {
-      try {
-        const result = new Chess(fen)
-        const moveResult = result.move(move)
-
-        if (moveResult) {
-          setGame(result)
-          // Simulate evaluation change
-          setCurrentEvaluation(Math.random() * 2 - 1)
-          return true
-        }
-      } catch (e) {
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
-        return false
-      }
-      return false
-    },
-<<<<<<< HEAD
-    [game],
-  )
-
   const goToMove = (index: number) => {
     const newGame = new Chess()
-    const moves = moveHistory.slice(0, index + 1)
+    const moves = game.history()
     
     // Play all moves up to the target index
-    for (const move of moves) {
-      try {
-        newGame.move(move)
-      } catch (e) {
-        console.error("Error replaying move:", e)
-        return
-      }
+    for (let i = 0; i <= index; i++) {
+      newGame.move(moves[i])
     }
     
     setFen(newGame.fen())
@@ -304,48 +224,53 @@ export default function GamePage() {
     }
   }
 
-  // Update resetGame to handle move index
   const resetGame = () => {
     const newGame = new Chess()
     setGame(newGame)
     setFen(newGame.fen())
     setMoveHistory([])
-    setCurrentMoveIndex(-1)
     setAnalysis("")
-    setSelectedSquare(null)
+    setCurrentMoveIndex(-1)
     setHighlightSquares({})
+    setSelectedSquare(null)
+    setLegalMoves([])
+    setIsThinking(false)
+    // If player is black, make first move as white
     if (playerColor === "black") {
       setTimeout(() => makeAIMove(newGame), 500)
     }
   }
 
   const makeAIMove = async (currentGame: Chess = game!) => {
-    if (!currentGame || currentGame.isGameOver() || currentGame.isDraw()) return
+    if (currentGame.isGameOver()) return
 
     setIsThinking(true)
     try {
-      // Add random delay between 500ms and 1500ms
-      await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000))
-      
-      const aiMove = generateAIMove(currentGame, difficulty as Difficulty)
-      if (aiMove) {
-        makeMove({
-          from: aiMove.from,
-          to: aiMove.to,
-          promotion: aiMove.promotion
-        })
+      const move = generateAIMove(currentGame, difficulty)
+      if (move) {
+        currentGame.move(move)
+        setGame(currentGame)
+        setFen(currentGame.fen())
+        setMoveHistory(currentGame.history())
+        setCurrentMoveIndex(currentGame.history().length - 1)
       }
+    } catch (error) {
+      console.error("Error making AI move:", error)
     } finally {
       setIsThinking(false)
     }
   }
 
   const onSquareClick = (square: Square) => {
-    if (!game || !isPlayerTurn(game, playerColor)) return
+    // Don't allow moves if viewing history
+    if (currentMoveIndex !== moveHistory.length - 1) return
+
+    // Don't allow moves during AI's turn
+    if (!isPlayerTurn(game, playerColor)) return
 
     if (selectedSquare === null) {
       const piece = game.get(square)
-      if (piece && piece.color === (playerColor === "white" ? "w" : "b")) {
+      if (piece && piece.color === game.turn()) {
         const { moves, highlights } = getLegalMovesForSquare(game, square)
         setSelectedSquare(square)
         setLegalMoves(moves)
@@ -353,353 +278,248 @@ export default function GamePage() {
       }
     } else {
       if (legalMoves.includes(square)) {
-        const move = makeMove({
+        const move = {
           from: selectedSquare,
           to: square,
-          promotion: "q"
-        })
-        if (move) {
-          setTimeout(() => makeAIMove(), 500)
+          promotion: 'q' // Always promote to queen for simplicity
+        }
+        const gameCopy = new Chess(game.fen())
+        const result = gameCopy.move(move)
+        if (result) {
+          setGame(gameCopy)
+          setFen(gameCopy.fen())
+          setMoveHistory(gameCopy.history())
+          setCurrentMoveIndex(gameCopy.history().length - 1)
+          setTimeout(() => makeAIMove(gameCopy), 300)
         }
       }
       setSelectedSquare(null)
+      setLegalMoves([])
       setHighlightSquares({})
     }
   }
 
   const onPieceDrop = (sourceSquare: Square, targetSquare: Square) => {
-    if (!game || !isPlayerTurn(game, playerColor)) return false
+    // Don't allow moves if viewing history
+    if (currentMoveIndex !== moveHistory.length - 1) return false
 
-    const move = makeMove({
+    // Don't allow moves during AI's turn
+    if (!isPlayerTurn(game, playerColor)) return false
+
+    const move = {
       from: sourceSquare,
       to: targetSquare,
-      promotion: "q"
-    })
-
-    if (move) {
-      setTimeout(() => makeAIMove(), 500)
+      promotion: 'q' // Always promote to queen for simplicity
     }
 
-    return move
-=======
-    [fen],
-  )
+    const gameCopy = new Chess(game.fen())
+    const result = gameCopy.move(move)
 
-  const onDrop = (sourceSquare: string, targetSquare: string) => {
-    const move = makeMove({
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: "q",
-    })
-
-    if (!move) return false
-
-    // Simulate AI response after player move
-    setTimeout(() => {
-      makeAIMove()
-    }, 1000)
-
-    return true
-  }
-
-  const makeAIMove = async () => {
-    if (game.isGameOver() || game.isDraw()) return
-
-    setLoading(true)
-    try {
-      // Simulate API call to Stockfish
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      const moves = game.moves({ verbose: true })
-      if (moves.length > 0) {
-        const randomMove = moves[Math.floor(Math.random() * moves.length)]
-        makeMove(randomMove)
-      }
-    } catch (error) {
-      console.error("Error getting AI move:", error)
-    } finally {
-      setLoading(false)
+    if (result) {
+      setGame(gameCopy)
+      setFen(gameCopy.fen())
+      setMoveHistory(gameCopy.history())
+      setCurrentMoveIndex(gameCopy.history().length - 1)
+      setTimeout(() => makeAIMove(gameCopy), 300)
+      return true
     }
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
+
+    return false
   }
 
   const analyzePosition = async () => {
     setLoading(true)
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      setAnalysis(`Position Analysis:
-      
-Current Evaluation: ${currentEvaluation > 0 ? "+" : ""}${currentEvaluation.toFixed(2)}
+      const response = await fetch("/api/analyze-position", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ fen: game.fen() }),
+      })
 
-Best Move: The engine suggests developing the knight to f3, controlling the center and preparing castling.
-
-Key Ideas:
-• Control the center with pawns and pieces
-• Develop knights before bishops
-• Castle early for king safety
-• Look for tactical opportunities
-
-${style ? `${style.replace("-", " ")} Style: This position would benefit from the aggressive approach typical of this grandmaster's play.` : ""}`)
+      const data = await response.json()
+      setAnalysis(data.analysis || "Analysis not available")
     } catch (error) {
       console.error("Error analyzing position:", error)
+      setAnalysis("Error analyzing position")
     } finally {
       setLoading(false)
     }
   }
 
-<<<<<<< HEAD
   const flipBoard = () => {
-    setPlayerColor(prev => prev === "white" ? "black" : "white")
-    resetGame()
-=======
-  const resetGame = () => {
-    setGame(new Chess())
-    setAnalysis("")
-    setCurrentEvaluation(0.0)
-  }
-
-  const flipBoard = () => {
-    setOrientation(orientation === "white" ? "black" : "white")
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
+    setPlayerColor(playerColor === "white" ? "black" : "white")
   }
 
   const gameStatus = () => {
     if (game.isCheckmate()) return "Checkmate!"
     if (game.isDraw()) return "Draw!"
     if (game.isCheck()) return "Check!"
-    return game.turn() === "w" ? "White to move" : "Black to move"
+    return isPlayerTurn(game, playerColor) ? "Your turn" : "AI is thinking..."
   }
 
   const getOpponentName = () => {
-    if (style) return style.replace("-", " ") + " Style"
-    return opponent.replace("-", " ").replace(/\b\w/g, (l) => l.toUpperCase())
+    switch (difficulty) {
+      case "beginner":
+        return "Beginner Bot"
+      case "intermediate":
+        return "Intermediate Bot"
+      case "advanced":
+        return "Advanced Bot"
+      default:
+        return "AI Opponent"
+    }
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Game Info Panel */}
-        <div className="lg:col-span-1 space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Crown className="h-5 w-5 text-purple-600" />
-                Game Info
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="text-sm text-muted-foreground">Opponent</div>
-                <div className="font-semibold">{getOpponentName()}</div>
-              </div>
-              <div>
-<<<<<<< HEAD
-                <div className="text-sm text-muted-foreground">Playing as</div>
-                <div className="flex items-center gap-2">
-                  <div className="font-semibold capitalize">{playerColor}</div>
-                  <Button variant="outline" size="sm" onClick={flipBoard}>
-                    <RotateCcw className="h-4 w-4 mr-1" />
-                    Flip Board
-                  </Button>
-                </div>
-              </div>
-              <div>
-=======
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
-                <div className="text-sm text-muted-foreground">Your Rating</div>
-                <div className="font-semibold">{playerRating}</div>
-              </div>
-              <div>
-                <div className="text-sm text-muted-foreground">Accuracy</div>
-                <div className="flex items-center gap-2">
-                  <Progress value={accuracy} className="flex-1" />
-                  <span className="text-sm font-medium">{accuracy}%</span>
-                </div>
-              </div>
-<<<<<<< HEAD
-              {isThinking && (
-                <Badge variant="secondary" className="w-full justify-center">
-                  <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-purple-600 mr-2"></div>
-                  AI Thinking...
-                </Badge>
-              )}
-=======
-              <div>
-                <div className="text-sm text-muted-foreground">Evaluation</div>
-                <div
-                  className={`font-semibold ${currentEvaluation > 0 ? "text-green-600" : currentEvaluation < 0 ? "text-red-600" : "text-gray-600"}`}
-                >
-                  {currentEvaluation > 0 ? "+" : ""}
-                  {currentEvaluation.toFixed(2)}
-                </div>
-              </div>
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-blue-600" />
-                Quick Actions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button onClick={analyzePosition} disabled={loading} size="sm" className="w-full">
-                <Brain className="mr-2 h-4 w-4" />
-                Analyze Position
-              </Button>
-              <Button
-                onClick={() => makeAIMove()}
-                disabled={loading || game.isGameOver()}
-                size="sm"
-                variant="outline"
-                className="w-full"
-              >
-                <Zap className="mr-2 h-4 w-4" />
-                Get Hint
-              </Button>
-<<<<<<< HEAD
-=======
-              <Button onClick={flipBoard} variant="outline" size="sm" className="w-full">
-                Flip Board
-              </Button>
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
-              <Button onClick={resetGame} variant="outline" size="sm" className="w-full">
-                <RotateCcw className="mr-2 h-4 w-4" />
-                New Game
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Chess Board */}
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-<<<<<<< HEAD
           <Card>
-=======
-          <Card className="w-full">
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Chess Board</CardTitle>
+                  <CardTitle>{getOpponentName()}</CardTitle>
                   <CardDescription>{gameStatus()}</CardDescription>
                 </div>
-<<<<<<< HEAD
-                <div className="flex gap-2">
-                  <Button onClick={resetGame} variant="outline" size="icon" className="h-8 w-8">
-                    <RotateCcw className="h-4 w-4" />
-                  </Button>
-                  <Button onClick={goToPreviousMove} disabled={currentMoveIndex === -1} variant="outline" size="icon" className="h-8 w-8">
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Button onClick={goToNextMove} disabled={currentMoveIndex >= moveHistory.length - 1} variant="outline" size="icon" className="h-8 w-8">
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline">
+                    <Target className="w-4 h-4 mr-1" />
+                    Rating: {playerRating}
+                  </Badge>
+                  <Badge variant="outline">
+                    <Brain className="w-4 h-4 mr-1" />
+                    Accuracy: {accuracy}%
+                  </Badge>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="aspect-square">
-                <Chessboard
-                  position={fen}
-                  onPieceDrop={onPieceDrop}
-                  onSquareClick={onSquareClick}
-                  customSquareStyles={highlightSquares}
-                  boardOrientation={playerColor}
-                />
-              </div>
-=======
-                {loading && (
-                  <Badge variant="secondary">
-                    <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-purple-600 mr-2"></div>
-                    AI Thinking...
-                  </Badge>
+              <div className="relative">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="aspect-square max-w-[600px] mx-auto"
+                >
+                  <Chessboard
+                    position={fen}
+                    onSquareClick={onSquareClick}
+                    onPieceDrop={onPieceDrop}
+                    boardOrientation={playerColor}
+                    customSquareStyles={highlightSquares}
+                    animationDuration={200}
+                  />
+                </motion.div>
+                {isThinking && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+                  </div>
                 )}
               </div>
-            </CardHeader>
-            <CardContent>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="w-full max-w-[600px] mx-auto"
-              >
-                <Chessboard
-                  position={fen}
-                  onPieceDrop={onDrop}
-                  boardOrientation={orientation}
-                  animationDuration={200}
-                />
-              </motion.div>
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
             </CardContent>
           </Card>
+
+          <div className="flex flex-wrap gap-2 justify-center mt-4">
+            <Button onClick={resetGame} variant="outline" size="sm">
+              <RotateCcw className="mr-2 h-4 w-4" /> New Game
+            </Button>
+            <Button onClick={flipBoard} variant="outline" size="sm">
+              Flip Board
+            </Button>
+            <Button onClick={goToPreviousMove} disabled={currentMoveIndex === -1} variant="outline" size="sm">
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button onClick={goToNextMove} disabled={currentMoveIndex >= moveHistory.length - 1} variant="outline" size="sm">
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+            <Button onClick={analyzePosition} disabled={loading} size="sm">
+              <Brain className="mr-2 h-4 w-4" /> Analyze Position
+            </Button>
+          </div>
         </div>
 
-        {/* Analysis Panel */}
-        <div className="lg:col-span-1">
-          <Tabs defaultValue="moves" className="w-full">
+        <div>
+          <Tabs defaultValue="moves">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="moves">Moves</TabsTrigger>
-              <TabsTrigger value="analysis">Analysis</TabsTrigger>
+              <TabsTrigger value="moves">
+                <Zap className="mr-2 h-4 w-4" /> Moves
+              </TabsTrigger>
+              <TabsTrigger value="analysis">
+                <Brain className="mr-2 h-4 w-4" /> Analysis
+              </TabsTrigger>
             </TabsList>
-
             <TabsContent value="moves">
               <Card>
                 <CardHeader>
                   <CardTitle>Move History</CardTitle>
+                  <CardDescription>Click on a move to view the position</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[400px] overflow-y-auto">
-                    {moveHistory.length > 0 ? (
-                      <div className="space-y-1">
-                        {moveHistory.map((move, index) => (
-                          <div
-                            key={index}
-                            className={`p-2 rounded text-sm ${index % 2 === 0 ? "bg-gray-100 dark:bg-gray-800" : ""}`}
-                          >
-                            <span className="text-muted-foreground mr-2">
-                              {Math.floor(index / 2) + 1}
-                              {index % 2 === 0 ? "." : "..."}
-                            </span>
-                            {move}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-center text-muted-foreground">No moves yet</p>
-                    )}
+                  <div className="grid grid-cols-2 gap-2">
+                    {moveHistory.map((move, index) => (
+                      <Button
+                        key={index}
+                        variant={index === currentMoveIndex ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => goToMove(index)}
+                      >
+                        {index % 2 === 0 ? `${Math.floor(index / 2) + 1}.` : ""} {move}
+                      </Button>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
-
             <TabsContent value="analysis">
               <Card>
                 <CardHeader>
-                  <CardTitle>AI Analysis</CardTitle>
+                  <CardTitle>Position Analysis</CardTitle>
+                  <CardDescription>AI evaluation of the current position</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[400px] overflow-y-auto">
-                    {loading ? (
-                      <div className="flex items-center justify-center h-full">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                      </div>
-                    ) : analysis ? (
-                      <div className="space-y-2 text-sm whitespace-pre-line">{analysis}</div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
-                        <AlertCircle className="h-8 w-8 mb-2" />
-                        <p>Click "Analyze Position" to get AI insights</p>
-                      </div>
-                    )}
-                  </div>
+                  {loading ? (
+                    <div className="flex items-center justify-center p-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                    </div>
+                  ) : analysis ? (
+                    <p className="text-sm">{analysis}</p>
+                  ) : (
+                    <div className="flex items-center gap-2 text-yellow-600">
+                      <AlertCircle className="h-4 w-4" />
+                      <p className="text-sm">Click "Analyze Position" to get AI insights</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
+
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Game Stats</CardTitle>
+              <CardDescription>Current game performance</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm font-medium">Evaluation</span>
+                  <span className="text-sm text-muted-foreground">
+                    {currentEvaluation > 0 ? "+" : ""}{currentEvaluation.toFixed(1)}
+                  </span>
+                </div>
+                <Progress value={50 + (currentEvaluation * 5)} className="h-2" />
+              </div>
+              <div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm font-medium">Accuracy</span>
+                  <span className="text-sm text-muted-foreground">{accuracy}%</span>
+                </div>
+                <Progress value={accuracy} className="h-2" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

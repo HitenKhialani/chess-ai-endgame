@@ -34,42 +34,6 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-<<<<<<< HEAD
-    <div className="py-24 sm:py-32">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-xl text-center">
-          <h2 className="text-lg font-semibold leading-8 tracking-tight text-[#00BFCF]">Testimonials</h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-[#FFFFFF] sm:text-4xl">
-            Success Stories from Our Users
-          </p>
-        </div>
-        <div className="mx-auto mt-16 flow-root max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
-          <div className="-mt-8 sm:-mx-4 sm:columns-2 sm:text-[0] lg:columns-3">
-            {testimonials.map((testimonial) => (
-              <div key={testimonial.name} className="pt-8 sm:inline-block sm:w-full sm:px-4">
-                <figure className="rounded-2xl bg-[#1a1a1a] p-8 text-sm leading-6">
-                  <blockquote className="text-[#CFFAFE]">
-                    <p>{`"${testimonial.content}"`}</p>
-                  </blockquote>
-                  <figcaption className="mt-6 flex items-center gap-x-4">
-                    <img
-                      className="h-10 w-10 rounded-full bg-[#3F51B5]"
-                      src={testimonial.avatar}
-                      alt=""
-                    />
-                    <div>
-                      <div className="font-semibold text-[#FFFFFF]">{testimonial.name}</div>
-                      <div className="text-[#00BFCF]">{testimonial.rating}</div>
-                    </div>
-                  </figcaption>
-                </figure>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-=======
     <section className="py-24 bg-gray-50 dark:bg-gray-900">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
@@ -126,6 +90,5 @@ export default function Testimonials() {
         </div>
       </div>
     </section>
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
   )
 }

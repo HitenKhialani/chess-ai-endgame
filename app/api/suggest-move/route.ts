@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 import { Chess } from "chess.js"
 
-<<<<<<< HEAD
 type PieceType = 'p' | 'n' | 'b' | 'r' | 'q' | 'k'
 
 // Simple evaluation function for pieces
@@ -82,42 +81,6 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error("Error in suggest-move API:", error)
-=======
-// This is a placeholder API that will be replaced with your FastAPI backend
-// It currently returns a random legal move
-export async function POST(request: Request) {
-  try {
-    const { fen } = await request.json()
-
-    // Create a chess instance from the FEN
-    const chess = new Chess(fen)
-
-    // Get all possible moves
-    const moves = chess.moves({ verbose: true })
-
-    if (moves.length === 0) {
-      return NextResponse.json({ error: "No legal moves available" }, { status: 400 })
-    }
-
-    // Select a random move (this will be replaced with Stockfish analysis)
-    const randomMove = moves[Math.floor(Math.random() * moves.length)]
-
-    // In a real implementation, you would:
-    // 1. Send the FEN to your FastAPI backend
-    // 2. Have the backend use Stockfish to analyze the position
-    // 3. Return the best move with explanation
-
-    return NextResponse.json({
-      move: {
-        from: randomMove.from,
-        to: randomMove.to,
-        promotion: randomMove.promotion,
-      },
-      explanation: "This is a placeholder move. Connect to your FastAPI backend for real Stockfish analysis.",
-    })
-  } catch (error) {
-    console.error("Error suggesting move:", error)
->>>>>>> 4cec3053f77e644786a4b9660e9c7ef6809fbbfa
     return NextResponse.json({ error: "Failed to suggest move" }, { status: 500 })
   }
 }
