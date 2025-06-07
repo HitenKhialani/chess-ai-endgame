@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BookOpen, Crown, ChevronRight, Play, Clock, Star, Target, Brain } from "lucide-react"
+import { BookOpen, Crown, ChevronRight, Play, Clock, Star, Target, Brain, Sword, Shield, Zap } from "lucide-react"
 import Link from "next/link"
 
 const openings = [
@@ -130,6 +130,16 @@ const courses = [
     lessons: 8,
     progress: 75,
     icon: BookOpen,
+    chapters: [
+      "Understanding Opening Principles",
+      "Control of the Center",
+      "Piece Development",
+      "King Safety",
+      "Pawn Structure Basics",
+      "Common Opening Traps",
+      "Opening Repertoire Building",
+      "Practice Positions"
+    ]
   },
   {
     title: "Tactical Patterns",
@@ -139,6 +149,20 @@ const courses = [
     lessons: 12,
     progress: 50,
     icon: Target,
+    chapters: [
+      "Pins and Skewers",
+      "Double Attacks",
+      "Discovered Attacks",
+      "Back Rank Tactics",
+      "Removing the Defender",
+      "Overloading Pieces",
+      "Deflection Tactics",
+      "Interference Tactics",
+      "Clearance Sacrifices",
+      "Mating Patterns",
+      "Tactical Exercises",
+      "Complex Combinations"
+    ]
   },
   {
     title: "Endgame Essentials",
@@ -148,6 +172,18 @@ const courses = [
     lessons: 10,
     progress: 25,
     icon: Crown,
+    chapters: [
+      "King and Pawn Endings",
+      "Opposition Technique",
+      "Rook Endgames",
+      "Queen vs Pawn",
+      "Minor Piece Endgames",
+      "Fortress Positions",
+      "Zugzwang",
+      "Endgame Studies",
+      "Practical Endgames",
+      "Complex Endgames"
+    ]
   },
   {
     title: "Strategic Planning",
@@ -157,12 +193,96 @@ const courses = [
     lessons: 15,
     progress: 0,
     icon: Brain,
+    chapters: [
+      "Pawn Structure Analysis",
+      "Piece Placement",
+      "Center Control",
+      "Prophylaxis",
+      "Attacking Plans",
+      "Defense Techniques",
+      "Positional Sacrifices",
+      "Minority Attack",
+      "Isolated Pawns",
+      "Backward Pawns",
+      "Space Advantage",
+      "Color Complexes",
+      "Strategic Exchanges",
+      "Long-term Planning",
+      "Strategic Exercises"
+    ]
   },
+  {
+    title: "Attacking Chess",
+    description: "Learn how to build and execute attacking plans",
+    duration: "3.5 hours",
+    level: "Intermediate",
+    lessons: 12,
+    progress: 0,
+    icon: Sword,
+    chapters: [
+      "King Safety Assessment",
+      "Piece Coordination",
+      "Pawn Storms",
+      "Sacrificial Attacks",
+      "Attack on Castled King",
+      "Open File Strategy",
+      "Attacking with Opposite Castling",
+      "Attacking Weak Color Complexes",
+      "Initiative in Attack",
+      "Defense Against Attack",
+      "Famous Attacking Games",
+      "Attack Practice"
+    ]
+  },
+  {
+    title: "Defense Mastery",
+    description: "Master the art of defense and counterplay",
+    duration: "3 hours",
+    level: "Advanced",
+    lessons: 10,
+    progress: 0,
+    icon: Shield,
+    chapters: [
+      "Defensive Principles",
+      "Prophylactic Thinking",
+      "Resource Finding",
+      "Counterattack Opportunities",
+      "Fortress Building",
+      "Emergency Defense",
+      "Equal Position Defense",
+      "Worse Position Defense",
+      "Famous Defensive Games",
+      "Defense Exercises"
+    ]
+  },
+  {
+    title: "Calculation Training",
+    description: "Improve your calculation abilities and visualization",
+    duration: "4 hours",
+    level: "Intermediate",
+    lessons: 12,
+    progress: 0,
+    icon: Zap,
+    chapters: [
+      "Calculation Method",
+      "Candidate Moves",
+      "Tree of Analysis",
+      "Forcing Moves",
+      "Quiet Positions",
+      "Complex Variations",
+      "Time Management",
+      "Pattern Recognition",
+      "Practical Decision Making",
+      "Calculation Exercises",
+      "Visualization Training",
+      "Complex Problems"
+    ]
+  }
 ]
 
 export default function LearnPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold mb-4">Chess Learning Center</h1>
         <p className="text-xl text-muted-foreground">
@@ -183,7 +303,7 @@ export default function LearnPage() {
         </TabsList>
 
         <TabsContent value="courses">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {courses.map((course) => (
               <Card key={course.title}>
                 <CardHeader>
@@ -199,27 +319,35 @@ export default function LearnPage() {
                   <CardDescription>{course.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4" />
-                        {course.duration}
-                      </div>
-                      <div>
-                        {course.lessons} Lessons
-                      </div>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      {course.duration}
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Progress</span>
-                        <span>{course.progress}%</span>
-                      </div>
-                      <Progress value={course.progress} />
-                    </div>
+                    <div>{course.lessons} lessons</div>
+                  </div>
+                  <Progress value={course.progress} className="mb-4" />
+                  <Link href={`/learn/courses/${course.title.toLowerCase().replace(/\s+/g, "-")}`}>
                     <Button className="w-full">
-                      {course.progress === 0 ? "Start Course" : "Continue Learning"}
+                      {course.progress > 0 ? "Continue Learning" : "Start Course"}
                       <ChevronRight className="w-4 h-4 ml-2" />
                     </Button>
+                  </Link>
+                  <div className="mt-4">
+                    <div className="text-sm font-medium mb-2">Course Content:</div>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      {course.chapters.slice(0, 4).map((chapter, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <div className="w-1 h-1 rounded-full bg-primary" />
+                          {chapter}
+                        </li>
+                      ))}
+                      {course.chapters.length > 4 && (
+                        <li className="text-primary text-xs mt-1">
+                          +{course.chapters.length - 4} more chapters
+                        </li>
+                      )}
+                    </ul>
                   </div>
                 </CardContent>
               </Card>
@@ -228,7 +356,7 @@ export default function LearnPage() {
         </TabsContent>
 
         <TabsContent value="openings">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {openings.map((opening) => (
               <Card key={opening.name}>
                 <CardHeader>
@@ -241,34 +369,23 @@ export default function LearnPage() {
                   <CardDescription>{opening.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <div className="text-sm font-medium">Main Line</div>
-                      <div className="text-sm font-mono bg-muted p-2 rounded">
-                        {opening.moves.join(" ")}
-                      </div>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+                    <div className="flex items-center gap-2">
+                      <Star className="w-4 h-4" />
+                      Popularity: {opening.popularity}%
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <div className="flex items-center gap-2 text-sm mb-2">
-                          <Star className="w-4 h-4 text-yellow-500" />
-                          Popularity
-                        </div>
-                        <Progress value={opening.popularity} />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 text-sm mb-2">
-                          <Crown className="w-4 h-4 text-purple-500" />
-                          Win Rate
-                        </div>
-                        <Progress value={opening.winRate} />
-                      </div>
-                    </div>
+                    <div>Win Rate: {opening.winRate}%</div>
+                  </div>
+                  <div className="text-sm text-muted-foreground mb-4">
+                    <div className="font-medium mb-1">Main Line:</div>
+                    <div className="font-mono">{opening.moves.join(" ")}</div>
+                  </div>
+                  <Link href={`/learn/openings/${opening.name.toLowerCase().replace(/\s+/g, "-")}`}>
                     <Button className="w-full">
-                      Study Opening
+                      Learn Opening
                       <ChevronRight className="w-4 h-4 ml-2" />
                     </Button>
-                  </div>
+                  </Link>
                 </CardContent>
               </Card>
             ))}

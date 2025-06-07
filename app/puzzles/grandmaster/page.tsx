@@ -60,11 +60,11 @@ export default function GrandmasterPuzzles() {
   const [selectedGM, setSelectedGM] = useState(Object.keys(grandmasterPuzzles)[0]);
   const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
 
-  const currentPuzzles = grandmasterPuzzles[selectedGM];
+  const currentPuzzles = grandmasterPuzzles[selectedGM] || [];
   const currentPuzzle = currentPuzzles[currentPuzzleIndex];
 
   // If data is not loaded yet, show loading state
-  if (!currentPuzzle) {
+  if (!currentPuzzle || !selectedGM) {
     return (
       <div className="min-h-screen bg-gray-900 text-white p-4 md:p-8 flex items-center justify-center">
         <div className="text-xl">Loading puzzle...</div>
@@ -78,7 +78,8 @@ export default function GrandmasterPuzzles() {
       
       <div className="max-w-7xl mx-auto">
         <Tab.Group onChange={(index: number) => {
-          setSelectedGM(Object.keys(grandmasterPuzzles)[index]);
+          const newGM = Object.keys(grandmasterPuzzles)[index];
+          setSelectedGM(newGM);
           setCurrentPuzzleIndex(0);
         }}>
           <Tab.List className="flex space-x-1 rounded-xl bg-gray-800 p-1 mb-8">

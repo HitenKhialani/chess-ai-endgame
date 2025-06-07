@@ -72,7 +72,6 @@ const grandmasterStyles = [
 
 export default function PlayPage() {
   const [selectedBot, setSelectedBot] = useState<string | null>(null)
-  const [selectedGM, setSelectedGM] = useState<string | null>(null)
 
   return (
     <main className="min-h-screen pt-20 pb-16">
@@ -80,79 +79,43 @@ export default function PlayPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4">Play Chess</h1>
           <p className="text-lg text-gray-400">
-            Challenge AI opponents or learn from grandmaster playing styles
+            Challenge AI opponents and test your skills
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold">AI Opponents</h2>
-              <div className="text-sm text-gray-400">Grandmaster Styles</div>
-            </div>
-
-            {aiOpponents.map((opponent) => (
-              <Card key={opponent.name} className="bg-[#1f2937] border-[#374151] hover:border-[#4f46e5]/50 transition-all duration-300">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className={`p-2 rounded-lg bg-[#13151a] ${opponent.color}`}>
-                        <opponent.icon className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">{opponent.name}</h3>
-                        <p className="text-sm text-gray-400">{opponent.description}</p>
-                      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {aiOpponents.map((opponent) => (
+            <Card key={opponent.name} className="bg-[#1f2937] border-[#374151] hover:border-[#4f46e5]/50 transition-all duration-300">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-4">
+                    <div className={`p-2 rounded-lg bg-[#13151a] ${opponent.color}`}>
+                      <opponent.icon className="h-6 w-6" />
                     </div>
-                    <Badge className={`${opponent.color} bg-[#13151a]`}>
-                      {opponent.difficulty}
-                    </Badge>
-                  </div>
-                  <div className="mt-4 flex items-center justify-between">
-                    <div className="text-sm text-gray-400">
-                      Rating: <span className="text-white">{opponent.rating}</span>
+                    <div>
+                      <h3 className="font-semibold">{opponent.name}</h3>
+                      <p className="text-sm text-gray-400">{opponent.description}</p>
                     </div>
-                    <Link href={`/game?opponent=${opponent.name.toLowerCase().replace(" ", "-")}`}>
-                      <Button className="bg-[#4f46e5] hover:bg-[#4338ca]">
-                        Play Now
-                      </Button>
-                    </Link>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold">Quick Start</h2>
-            <p className="text-gray-400">Jump into a game immediately with recommended settings</p>
-
-            <div className="grid grid-cols-1 gap-4">
-              <Button variant="outline" className="w-full justify-start text-left h-auto py-4 border-[#374151] hover:border-[#4f46e5]/50">
-                <Target className="h-5 w-5 mr-3" />
-                <div>
-                  <div className="font-semibold">Beginner Game</div>
-                  <div className="text-sm text-gray-400">Perfect for new players</div>
                 </div>
-              </Button>
-
-              <Button variant="outline" className="w-full justify-start text-left h-auto py-4 border-[#374151] hover:border-[#4f46e5]/50">
-                <Brain className="h-5 w-5 mr-3" />
-                <div>
-                  <div className="font-semibold">Intermediate Game</div>
-                  <div className="text-sm text-gray-400">For experienced players</div>
+                <div className="flex items-center justify-between">
+                  <Badge className={`${opponent.color} bg-[#13151a]`}>
+                    {opponent.difficulty}
+                  </Badge>
+                  <div className="text-sm text-gray-400">
+                    Rating: <span className="text-white">{opponent.rating}</span>
+                  </div>
                 </div>
-              </Button>
-
-              <Button variant="outline" className="w-full justify-start text-left h-auto py-4 border-[#374151] hover:border-[#4f46e5]/50">
-                <Users className="h-5 w-5 mr-3" />
-                <div>
-                  <div className="font-semibold">Play with Friends</div>
-                  <div className="text-sm text-gray-400">Challenge your friends</div>
+                <div className="mt-4">
+                  <Link href={`/game?opponent=${opponent.name.toLowerCase().replace(" ", "-")}`} className="w-full">
+                    <Button className="bg-[#4f46e5] hover:bg-[#4338ca] w-full">
+                      Play Now
+                    </Button>
+                  </Link>
                 </div>
-              </Button>
-            </div>
-          </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     </main>

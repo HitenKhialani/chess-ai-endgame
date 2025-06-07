@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { Chessboard } from 'react-chessboard'
 import { Chess, Square } from 'chess.js'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 
 interface PuzzleBoardProps {
   fen: string
-  moves: string[]
+  moves?: string[]
   onComplete: () => void
   onFail: () => void
 }
@@ -22,10 +22,23 @@ export function PuzzleBoard({ fen, moves = [], onComplete, onFail }: PuzzleBoard
   const [boardWidth, setBoardWidth] = useState(600)
   const [selectedPiece, setSelectedPiece] = useState<Square | null>(null)
 
+  // Ensure moves is always an array
+  const safetyMoves = useMemo(() => Array.isArray(moves) ? moves : [], [moves])
+
   // Handle window resize for responsive board
   useEffect(() => {
     const handleResize = () => {
-      const width = Math.min(600, window.innerWidth - 32) // 32px for padding
+      const containerWidth = window.innerWidth
+      let width
+
+      if (containerWidth < 480) { // Mobile
+        width = Math.min(320, containerWidth - 32) // Smaller on mobile
+      } else if (containerWidth < 768) { // Tablet
+        width = Math.min(400, containerWidth - 48)
+      } else { // Desktop
+        width = Math.min(480, containerWidth - 64)
+      }
+      
       setBoardWidth(width)
     }
     
@@ -86,7 +99,7 @@ export function PuzzleBoard({ fen, moves = [], onComplete, onFail }: PuzzleBoard
         }
 
         // Check if the move matches the expected move
-        if (move.san === moves[moveIndex]) {
+        if (move.san === safetyMoves[moveIndex]) {
           setGame(new Chess(game.fen()))
           setMoveIndex(moveIndex + 1)
           setUserToMove(false)
@@ -94,9 +107,9 @@ export function PuzzleBoard({ fen, moves = [], onComplete, onFail }: PuzzleBoard
 
           // Make computer's move after a delay
           setTimeout(() => {
-            if (moveIndex + 1 < moves.length) {
+            if (moveIndex + 1 < safetyMoves.length) {
               const nextGame = new Chess(game.fen())
-              nextGame.move(moves[moveIndex + 1])
+              nextGame.move(safetyMoves[moveIndex + 1])
               setGame(nextGame)
               setMoveIndex(moveIndex + 2)
               setUserToMove(true)
@@ -115,7 +128,7 @@ export function PuzzleBoard({ fen, moves = [], onComplete, onFail }: PuzzleBoard
         setSelectedPiece(null)
       }
     }
-  }, [game, moveIndex, moves, userToMove, completed, selectedPiece, onComplete, onFail, resetPuzzle])
+  }, [game, moveIndex, safetyMoves, userToMove, completed, selectedPiece, onComplete, onFail, resetPuzzle])
 
   // Handle piece movement via drag and drop
   const onDrop = useCallback((sourceSquare: Square, targetSquare: Square) => {
@@ -131,16 +144,16 @@ export function PuzzleBoard({ fen, moves = [], onComplete, onFail }: PuzzleBoard
       if (move === null) return false
 
       // Check if the move matches the expected move
-      if (move.san === moves[moveIndex]) {
+      if (move.san === safetyMoves[moveIndex]) {
         setGame(new Chess(game.fen()))
         setMoveIndex(moveIndex + 1)
         setUserToMove(false)
 
         // Make computer's move after a delay
         setTimeout(() => {
-          if (moveIndex + 1 < moves.length) {
+          if (moveIndex + 1 < safetyMoves.length) {
             const nextGame = new Chess(game.fen())
-            nextGame.move(moves[moveIndex + 1])
+            nextGame.move(safetyMoves[moveIndex + 1])
             setGame(nextGame)
             setMoveIndex(moveIndex + 2)
             setUserToMove(true)
@@ -161,32 +174,45 @@ export function PuzzleBoard({ fen, moves = [], onComplete, onFail }: PuzzleBoard
     } catch (error) {
       return false
     }
-  }, [game, moveIndex, moves, userToMove, completed, onComplete, onFail, resetPuzzle])
+  }, [game, moveIndex, safetyMoves, userToMove, completed, onComplete, onFail, resetPuzzle])
 
   return (
-    <div className="space-y-4 w-full max-w-[600px] mx-auto px-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-[#00BFCF] border-[#00BFCF]">
+    <div className="space-y-4 w-full max-w-[480px] mx-auto">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge variant="outline" className="text-[#00BFCF] border-[#00BFCF] text-sm whitespace-nowrap">
             {userToMove ? "Your Move" : "Opponent's Move"}
           </Badge>
           {completed && (
-            <Badge variant="outline" className="text-green-500 border-green-500">
+            <Badge variant="outline" className="text-green-500 border-green-500 text-sm">
               Completed!
             </Badge>
           )}
         </div>
-        <Button 
-          variant="outline" 
-          className="text-[#00BFCF] border-[#00BFCF]"
-          onClick={resetPuzzle}
-        >
-          <RotateCcw className="h-4 w-4 mr-2" />
-          Reset
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="text-[#00BFCF] border-[#00BFCF]"
+            onClick={resetPuzzle}
+          >
+            <RotateCcw className="h-3 w-3 mr-1" />
+            Reset
+          </Button>
+          {moves && moves.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-[#00BFCF] border-[#00BFCF]"
+              onClick={() => setShowSolution(!showSolution)}
+            >
+              {showSolution ? "Hide Solution" : "Show Solution"}
+            </Button>
+          )}
+        </div>
       </div>
 
-      <div className="aspect-square w-full">
+      <div className="relative aspect-square w-full rounded-lg overflow-hidden shadow-lg">
         <Chessboard
           position={game.fen()}
           onPieceDrop={onDrop}
@@ -195,79 +221,28 @@ export function PuzzleBoard({ fen, moves = [], onComplete, onFail }: PuzzleBoard
           customDarkSquareStyle={{ backgroundColor: '#8B4513' }}
           customLightSquareStyle={{ backgroundColor: '#DEB887' }}
           customSquareStyles={{
-            ...(selectedPiece && {
-              [selectedPiece]: { 
-                backgroundColor: 'rgba(0, 191, 207, 0.4)'
-              },
-              ...Object.fromEntries(
-                game.moves({ square: selectedPiece, verbose: true })
-                  .map(move => [
-                    move.to,
-                    {
-                      '&::before': {
-                        content: '""',
-                        ...customDotStyle
-                      }
-                    }
-                  ])
-              )
-            })
+            ...(selectedPiece && game.moves({ square: selectedPiece, verbose: true })
+              .reduce((styles: any, move) => {
+                styles[move.to] = {
+                  background: 'radial-gradient(circle, rgba(0, 191, 207, 0.3) 25%, transparent 25%)',
+                }
+                return styles
+              }, {}))
           }}
+          boardOrientation={game.turn() === 'w' ? 'white' : 'black'}
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 justify-center">
-        <Button 
-          variant="outline" 
-          className="text-[#CFFAFE] border-[#3F51B5]"
-          onClick={() => {
-            if (moveIndex > 0) {
-              const newGame = new Chess(fen)
-              for (let i = 0; i < moveIndex - 1; i++) {
-                newGame.move(moves[i])
-              }
-              setGame(newGame)
-              setMoveIndex(moveIndex - 1)
-              setUserToMove(!userToMove)
-              setSelectedPiece(null)
-            }
-          }}
-          disabled={moveIndex === 0}
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Previous
-        </Button>
-        <Button 
-          variant="outline" 
-          className="text-[#CFFAFE] border-[#3F51B5]"
-          onClick={() => {
-            if (moveIndex < moves.length) {
-              const newGame = new Chess(game.fen())
-              newGame.move(moves[moveIndex])
-              setGame(newGame)
-              setMoveIndex(moveIndex + 1)
-              setUserToMove(!userToMove)
-              setSelectedPiece(null)
-            }
-          }}
-          disabled={moveIndex >= moves.length}
-        >
-          Next
-          <ArrowRight className="h-4 w-4 ml-2" />
-        </Button>
-        <Button 
-          className="bg-[#3F51B5] hover:bg-[#3F51B5]/80 text-white"
-          onClick={() => setShowSolution(!showSolution)}
-        >
-          {showSolution ? 'Hide Solution' : 'Show Solution'}
-        </Button>
-      </div>
-
       {showSolution && (
-        <div className="mt-4 p-4 bg-[#121212] rounded-lg">
-          <p className="text-[#CFFAFE]">
-            Solution: {moves.join(', ')}
-          </p>
+        <div className="mt-4 p-4 bg-gray-800 rounded-lg">
+          <h4 className="font-medium text-white mb-2">Solution:</h4>
+          <div className="flex flex-wrap gap-2">
+            {moves.map((move, index) => (
+              <Badge key={index} variant="secondary" className="text-sm">
+                {index + 1}. {move}
+              </Badge>
+            ))}
+          </div>
         </div>
       )}
     </div>
