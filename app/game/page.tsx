@@ -201,11 +201,21 @@ export default function GamePage() {
 
   const goToMove = (index: number) => {
     const newGame = new Chess()
-    const moves = game.history()
+    const moves = moveHistory // Use moveHistory instead of game.history()
     
     // Play all moves up to the target index
     for (let i = 0; i <= index; i++) {
-      newGame.move(moves[i])
+      try {
+        // Try to make the move, handle any errors gracefully
+        const result = newGame.move(moves[i])
+        if (!result) {
+          console.error(`Invalid move at index ${i}: ${moves[i]}`)
+          break
+        }
+      } catch (error) {
+        console.error(`Error making move at index ${i}: ${moves[i]}`, error)
+        break
+      }
     }
     
     setFen(newGame.fen())
